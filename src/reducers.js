@@ -1,7 +1,7 @@
 import { combineReducers } from "../node_modules/redux";
 import { SELECT_SUB, INVALIDATE_SUB, REQUEST_POSTS, RECEIVE_POSTS } from "./actions";
 
-const selectedSub = (state = 'popular', action) => {
+const selectedSub = (state = "", action) => {
   switch(action.type) {
     case SELECT_SUB:
       return action.sub

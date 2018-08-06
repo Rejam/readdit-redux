@@ -6,7 +6,7 @@ import {
   RECEIVE_POSTS
 } from "./actions";
 
-const selectedSub = (state = "", action) => {
+export const selectedSub = (state = "", action) => {
   switch(action.type) {
     case SELECT_SUB:
       return action.sub
@@ -48,7 +48,7 @@ const sub = (
   }
 }
 
-const postsBySub = (state = {}, action) => {
+export const postsBySub = (state = {}, action) => {
   switch(action.type) {
     case INVALIDATE_SUB:
     case RECEIVE_POSTS:
@@ -61,9 +61,3 @@ const postsBySub = (state = {}, action) => {
       return state
   }
 }
-
-const rootReducer = combineReducers({
-  selectedSub,
-  postsBySub
-})
-export default rootReducer

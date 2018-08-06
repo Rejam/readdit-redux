@@ -1,9 +1,14 @@
-import { createStore, applyMiddleware } from "redux";
+import { createStore, applyMiddleware, combineReducers } from "redux";
 import { createLogger } from 'redux-logger'
 import thunk from 'redux-thunk'
-import rootReducer from './reducers'
+import { selectedSub, postsBySub } from './reducers'
 
 const logger = createLogger()
+
+const rootReducer = combineReducers({
+  selectedSub,
+  postsBySub
+})
 
 const configureStore = preloadedState =>
   createStore(

@@ -1,6 +1,8 @@
-import axios from 'axios'
-
+export const REQUEST_POSTS = "REQUEST_POSTS"
+export const RECEIVE_POSTS = "RECEIVE_POSTS"
 export const SELECT_SUB = "SELECT_SUB"
+export const INVALIDATE_SUB = "INVALIDATE_SUB"
+
 /**
  * Update selected subreddit
  * @param {string} sub
@@ -10,7 +12,6 @@ export const selectSub = sub => ({
   sub
 })
 
-export const INVALIDATE_SUB = "INVALIDATE_SUB"
 /**
  * Update didInvalidate so the subreddit may be refetched
  * @param {string} sub 
@@ -20,7 +21,6 @@ export const invalidateSub = sub => ({
   sub
 })
 
-export const REQUEST_POSTS = "REQUEST_POSTS"
 /**
  * Updates isFetching on the sub
  * @param {string} sub 
@@ -30,35 +30,32 @@ export const requestPosts = sub => ({
   sub
 })
 
-export const RECEIVE_POSTS = "RECEIVE_POSTS"
 /**
  * Updates the sub posts/details
  * @param {string} sub 
- * @param {{data:{data: {children:[{data:{}}]}}}} json 
+ * @param {{data:{children:[{data:{}}]}}} json 
  */
 const receivePosts = (sub, json) => ({
   type: RECEIVE_POSTS,
   sub,
-  posts:json.data.data.children.map(child => child.data),
-  lastUpdated: Date.now()
+  posts: json.data.children.map(child => child.data),
+  receivedAt: Date.now()
 })
 
 /**
  * Function to fetch posts and hadles dispatches
  * @param {string} sub 
  */
-export const fetchPosts = sub =>
+const fetchPosts = sub =>
   dispatch => {
     dispatch(requestPosts(sub))
-    return axios(`https://www.reddit.com/r/${sub}.json`)
-    .then(
-      json => dispatch(receivePosts(sub, json)),
-      err => console.error(err)
-    )
+    return fetch(`https://www.reddit.com/r/${sub}.json`)
+    .then(res => res.json())
+    .then(json => dispatch(receivePosts(sub, json)))
   }
 
 /**
- * Determines if necessary to make a new http request
+ * Determines if refetch is necessary
  * @param {{postsBySub:{}}} state 
  * @param {string} sub 
  * @return {boolean}
@@ -72,6 +69,11 @@ const shouldFetchPosts = (state, sub) => {
       posts.didInvalidate
 }
 
+/**
+ * Checks whether refetch is necessary before making a new http request
+ * @param {string} sub
+ * @return {Function} res
+ */
 export const fetchPostsIfNeeded = sub =>
   (dispatch, getState) =>
     shouldFetchPosts(getState(), sub) ?

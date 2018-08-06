@@ -1,5 +1,10 @@
 import { combineReducers } from "../node_modules/redux";
-import { SELECT_SUB, INVALIDATE_SUB, REQUEST_POSTS, RECEIVE_POSTS } from "./actions";
+import { 
+  SELECT_SUB, 
+  INVALIDATE_SUB, 
+  REQUEST_POSTS, 
+  RECEIVE_POSTS
+} from "./actions";
 
 const selectedSub = (state = "", action) => {
   switch(action.type) {
@@ -10,32 +15,47 @@ const selectedSub = (state = "", action) => {
   }
 }
 
-const postsBySub = (state = {}, action) => {
+const sub = (
+  state = {
+    isFetching: false,
+    didInvalidate: false,
+    items: []
+  }, 
+  action
+) => {
   switch(action.type) {
     case INVALIDATE_SUB:
       return {
         ...state,
-        [action.sub]: {
-          didInvalidate: true
-        }
+        didInvalidate: true 
       }
     case REQUEST_POSTS:
       return {
-        ...state, 
-        [action.sub]: {
-          isFetching: true,
-          didInvalidate: false
-        }
+        ...state,
+        isFetching: true,
+        didInvalidate: false
       }
     case RECEIVE_POSTS:
       return {
         ...state,
-        [action.sub]: {
-          isFetching: false,
-          didInvalidate: false,
-          lastUpdated: action.lastUpdated,
-          items: action.posts
-        }
+        didInvalidate: false,
+        isFetching: false,
+        lastUpdated: action.receivedAt,
+        items: action.posts
+      }
+    default:
+      return state
+  }
+}
+
+const postsBySub = (state = {}, action) => {
+  switch(action.type) {
+    case INVALIDATE_SUB:
+    case RECEIVE_POSTS:
+    case REQUEST_POSTS:
+      return {
+        ...state,
+        [action.sub]: sub(state[action.sub], action)
       }
     default:
       return state
